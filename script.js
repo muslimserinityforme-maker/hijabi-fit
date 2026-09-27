@@ -210,6 +210,7 @@
     'bras_jambes', 'buste_jambes', 'clavicules_hanches', 'cage_hanches',
     'stockage_graisse', 'ventre_texture', 'posture', 'douleurs_articulaires', 'cellulite', 'ventre_soir',
     'mobilite_orteils', 'mobilite_accroupir', 'mobilite_bras',
+    'psy1', 'psy2', 'psy3', 'psy4',
   ];
   const MORPHO_NUMERIC = ['tour_taille', 'tour_hanches', 'tour_cuisse', 'tour_bras', 'tour_poitrine'];
   const morphoError = document.getElementById('morpho-error');
@@ -340,6 +341,7 @@
     const morphotypeName = MORPHOTYPES[getMorphotypeKey(body.imc)].name;
     const bellyTypeName = BELLY_TYPES.find((t) => t.key === determineBellyType(answers, bio)).name;
     const hormonal = computeHormonal(answers, bio, morpho);
+    const profile = computeProfile(morpho);
 
     const lead = {
       date: new Date().toISOString(),
@@ -381,6 +383,10 @@
       morphotype: morphotypeName,
       typeVentre: bellyTypeName,
       hormonalTitre: hormonal.title,
+      // Profil psychologique — usage interne (Sheet) uniquement, jamais envoyé au prospect
+      profilBase: profile.base,
+      profilPhase: profile.phase,
+      orientationVente: profile.tip,
     };
 
     const submitBtn = gateForm.querySelector('button[type="submit"]');
@@ -918,6 +924,40 @@
         </ul>
       </div>
     `).join('');
+  }
+
+  // ── Profil psychologique (process communication) — usage interne coach uniquement,
+  // jamais affiché au prospect ni inclus dans l'email de confirmation. ──
+  const PROFILE_LABELS = {
+    empathique: 'Empathique',
+    perseverant: 'Persévérant',
+    travaillomane: 'Travaillomane',
+    promoteur: 'Promoteur',
+    reveur: 'Rêveuse',
+    rebelle: 'Rebelle',
+  };
+  const PROFILE_TIPS = {
+    empathique: "Connexion chaleureuse, mets-la en confiance, intéresse-toi à elle personnellement avant de parler produit.",
+    perseverant: "Sois honnête, cohérent et précis. Laisse-la exposer ses valeurs sans la couper, justifie avec des faits.",
+    travaillomane: "Sois ponctuel et carré. Présente un plan clair, parle organisation et résultats concrets.",
+    promoteur: "Va vite à l'action. Parle opportunité, défi et résultats rapides, ne tourne pas autour du pot.",
+    reveur: "Laisse-lui de l'espace, ne la brusque pas. Projette-la dans sa situation idéale future.",
+    rebelle: "Reste léger et direct, évite le cadre trop rigide, va au fait avec humour.",
+  };
+  function computeProfile(morpho) {
+    const tally = { empathique: 0, perseverant: 0, travaillomane: 0, promoteur: 0, reveur: 0, rebelle: 0 };
+    ['psy1', 'psy2', 'psy3', 'psy4'].forEach((field) => {
+      const v = morpho[field];
+      if (v && tally.hasOwnProperty(v)) tally[v] += 1;
+    });
+    const ranked = Object.entries(tally).sort((a, b) => b[1] - a[1]);
+    const baseKey = ranked[0][0];
+    const phaseKey = ranked.find(([key, count]) => key !== baseKey && count > 0)?.[0] || null;
+    return {
+      base: PROFILE_LABELS[baseKey],
+      phase: phaseKey ? PROFILE_LABELS[phaseKey] : '',
+      tip: PROFILE_TIPS[baseKey],
+    };
   }
 
   // ── Analyse hormonale (signaux indirects, pas un dosage) ──
