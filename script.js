@@ -436,7 +436,6 @@
     const body = computeBodyComposition(bio.age, bio.taille, bio.poids, bio.activite, bio.objectif);
     renderFicheImc(bio, body);
     renderMorphotype(body, bio);
-    renderSilhouette(morpho);
     renderBodyFat(body);
     renderFicheComposition(body);
     renderProjection(bio, body);
@@ -569,58 +568,6 @@
     const m = MORPHOTYPES[key];
     document.getElementById('morphotype-name').textContent = m.name;
     document.getElementById('morphotype-text').textContent = `${m.text} ${m.meaning}`;
-  }
-
-  // ── Silhouette (vue de profil, générée à partir de "Analyse sans photo") ──
-  // Chaque trait (cage thoracique, ventre, posture) déplace un point de
-  // contrôle du contour — pas une photo, une approximation visuelle honnête.
-  function renderSilhouette(morpho) {
-    const shoulderHW = { plus_larges: 50, moyenne: 42, plus_petites: 35 }[morpho.clavicules_hanches] ?? 42;
-    const chestForward = { plus_large: 16, moyenne: 7, plus_courte: 0 }[morpho.cage_hanches] ?? 7;
-    const ventreMou = morpho.ventre_texture === 'mou';
-    const ventreCible = morpho.stockage_graisse === 'ventre';
-    const bellyForward = ventreCible ? (ventreMou ? 20 : 12) : (ventreMou ? 10 : 4);
-    const headForward = morpho.posture === 'voutee' ? 12 : 0;
-    const upperBackOut = morpho.posture === 'voutee' ? -10 : 0;
-    const lowerBackForward = morpho.posture === 'cambree' ? 10 : 0;
-
-    const svg = `
-      <svg viewBox="0 0 220 400" class="silhouette-illustration" aria-hidden="true">
-        <path d="
-          M 100,18
-          C 90,18 84,28 86,38
-          L ${86 - upperBackOut},58
-          C ${82 - upperBackOut},80 ${82 - upperBackOut},105 86,128
-          C ${88 + lowerBackForward},155 ${90 + lowerBackForward},172 88,195
-          C 86,208 86,215 92,222
-          L 90,282 L 88,325 L 92,360 L 80,392 L 105,392 L 108,362 L 112,328 L 110,285
-          L 116,222
-          C 122,215 122,208 ${120 + bellyForward},195
-          C ${124 + bellyForward},172 ${122 + chestForward},150 ${118 + chestForward},128
-          C ${116 + chestForward},105 ${116 + chestForward},80 112,58
-          L ${110 + headForward},40
-          C ${112 + headForward},28 ${110 + headForward},18 100,18
-          Z" fill="var(--kaki)" opacity=".85" />
-        <circle cx="${100 + headForward * 0.6}" cy="22" r="15" fill="var(--kaki)" opacity=".85" />
-      </svg>`;
-    document.getElementById('silhouette-svg').innerHTML = svg;
-
-    const SEG_LABEL = { plus_grand: 'plus grands que la moyenne', identique: 'proportionnés', plus_petit: 'plus courts que la moyenne' };
-    const BUSTE_LABEL = { plus_long: 'un buste plus long que les jambes', identique: 'un buste bien proportionné', plus_court: 'un buste plus court que les jambes' };
-    const CAGE_LABEL = { plus_large: 'une cage thoracique ample', moyenne: 'une cage thoracique moyenne', plus_courte: 'une cage thoracique plus étroite' };
-    const EPAULES_LABEL = { plus_larges: 'des épaules larges', moyenne: 'des épaules moyennes', plus_petites: 'des épaules plus étroites' };
-    const POSTURE_LABEL = { voutee: 'une posture voûtée, épaules qui tombent vers l\'avant', cambree: 'une posture cambrée, le bas du dos creusé', droite: 'une posture droite, bien alignée' };
-
-    const traits = [
-      ['Cage thoracique', CAGE_LABEL[morpho.cage_hanches]],
-      ['Épaules', EPAULES_LABEL[morpho.clavicules_hanches]],
-      ['Bras', SEG_LABEL[morpho.bras_jambes]],
-      ['Buste / jambes', BUSTE_LABEL[morpho.buste_jambes]],
-      ['Posture', POSTURE_LABEL[morpho.posture]],
-    ];
-    document.getElementById('silhouette-traits').innerHTML = traits.map(([label, val]) =>
-      `<div class="silhouette-trait"><span class="silhouette-trait__label">${label}</span><span class="silhouette-trait__val">${val}</span></div>`
-    ).join('');
   }
 
   const BODYFAT_EXPLAIN = {
