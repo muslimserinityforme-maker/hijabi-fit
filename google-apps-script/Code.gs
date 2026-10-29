@@ -191,7 +191,9 @@ function sendBilanSanteEmail(data) {
     (data.videoUrl ? '<p style="margin:0 0 12px 0;"><a href="' + escapeHtml(data.videoUrl) + '" style="color:#2B1B22;font-weight:bold;">▶ Regarde ma vidéo pour toi</a></p>' : '') +
     '<div style="background:#ffffff;border-radius:8px;padding:20px;">' +
     '<p style="font-size:15px;line-height:1.7;font-style:italic;color:#2a2a2a;margin:0 0 12px 0;">' + escapeHtml(data.message || '') + '</p>' +
-    (data.problemText ? '<p style="font-size:15px;line-height:1.7;font-style:italic;color:#2a2a2a;margin:0 0 12px 0;">' + escapeHtml(data.problemText) + '</p>' : '') +
+    (data.problemText ? String(data.problemText).split('\n\n').map(function (t) {
+      return '<p style="font-size:15px;line-height:1.7;font-style:italic;color:#2a2a2a;margin:0 0 12px 0;">' + escapeHtml(t) + '</p>';
+    }).join('') : '') +
     '<p style="font-size:14px;font-weight:bold;color:#2B1B22;margin:0;">— L\'équipe Hijabi Fit</p>' +
     '</div>' +
     '<div style="background:#2B1B22;border-radius:8px;padding:28px 20px;margin-top:26px;text-align:center;">' +
