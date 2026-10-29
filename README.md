@@ -1,88 +1,83 @@
-# Bilan Sens — Hijabi Fit
+# Ton Bilan Santé — Hijabi Fit
 
-Clone adapté de `bilan-sens-rijalfit` pour un public féminin — même moteur
-(scoring, jauges, graphique, silhouette, analyse complète, email/Sheet),
-habillage différent : palette noir/blanc/rose, copy au féminin, **aucune
-photo pour l'instant** (le site d'origine utilise des photos d'un modèle
-homme — retirées ici plutôt que montrées à un public féminin).
+Même bilan que celui de Rijal Fit (`bilan-sens-rijalfit`), pour un public
+féminin : 9 questions, ≈ 2 minutes, et un résultat qui montre où la personne
+en est dans ses **4 santés** : physique, mentale, sociale, spirituelle. Tout
+est calculé dans le navigateur : aucune IA, aucun PDF. Le seul appel serveur
+sert à enregistrer la personne dans la Google Sheet et à lui envoyer son
+résultat complet par email.
 
-**Aucune IA, aucun PDF.** Tout est calculé instantanément côté navigateur
-(scoring du quiz + formules de composition corporelle + moteur d'analyse
-déterministe), sans appel serveur autre que l'enregistrement du lead.
+## Parcours
 
-## Différences avec bilan-sens-rijalfit (le site hommes)
+1. **Intro** — le hadith « Ton corps a un droit sur toi. », une phrase claire.
+2. **9 questions** — une par écran, 3 réponses (A/B/C = 0/1/2 points).
+3. **Prénom ou surnom, email, âge (facultatif)** et case de consentement, juste
+   avant le résultat.
+4. **Résultat** — le profil (3 zones), les **4 barres en pourcentage** avec un
+   commentaire par santé, le message de l'équipe (vidéo par profil si tu en as
+   une, sinon texte), puis un seul appel à l'action : l'appel découverte offert.
+   Le même retour complet part par email.
 
-- **Palette** : noir `#1A1A1A` / blanc / rose `#C2185B` (variables CSS
-  historiques `--kaki`/`--or`/`--beige` conservées dans `style.css` — seules
-  leurs valeurs ont changé, pour ne pas casser tout le code qui les
-  référence).
-- **Aucune image de fond ni miniature de réponse** : les écrans plein-écran
-  (`photo-bg`) utilisent un dégradé rose au lieu d'une photo. Si tu obtiens
-  un jour un set de photos femmes équivalent à celui de Rijal Fit (une image
-  de fond + 3 portraits de réponse par question, format `qN-bg.jpg` /
-  `qN-a/b/c.jpg` dans `images/`), il suffit de les déposer dans `images/` et
-  de rajouter les champs `bg`/`optionImages` sur chaque question dans
-  `QUESTIONS` (`script.js`) — la structure du code les supporte déjà.
-- **Formule de taux de graisse (Deurenberg) et seuils Faible/Moyen/Élevé**
-  recalibrés pour la physiologie féminine (le corps féminin porte
-  naturellement plus de masse grasse essentielle — les seuils hommes
-  auraient classé "Élevé" un taux tout à fait sain pour une femme).
-- **Analyse hormonale** réécrite (périménopause/œstrogènes après 40 ans, au
-  lieu de la testostérone).
-- **Zones** renommées : Hijabi en Éveil / Hijabi Fragilisée / Hijabi en
-  Déclin.
-- Toutes les questions, messages de zone et conseils d'analyse ont été
-  relus et adaptés au féminin (accords, "sœurs" au lieu de "frères", etc.)
-  — à relire une fois de plus si tu ajustes le texte, certains accords
-  peuvent avoir été manqués.
-- **Photo du coach retirée** du "Bilan de Sens personnalisé" (signature
-  générique "L'équipe Hijabi Fit" en attendant que tu précises qui signe —
-  toi, ta femme, ou les deux).
-- Lien Calendly final **encore celui de Rijal Fit** — à remplacer par un
-  lien dédié Hijabi Fit si tu en crées un.
+## Les 4 santés
 
-## Mise en route
+| Santé | Questions |
+|---|---|
+| Physique | énergie au réveil, ventre, sommeil |
+| Mentale | motivation, humeur |
+| Sociale | sœurs / amies / communauté, famille |
+| Spirituelle | prière, corps pendant les adorations |
 
-### 1. Créer la Google Sheet + le script d'envoi email (indépendant de celui de Rijal Fit)
+Pourcentage = 100 − 80 × (points ÷ points max), arrondi à 5 (plancher à
+**20 %**, jamais « 0 % »). Palier du commentaire : ≤ 25 % haut, ≤ 50 % moyen,
+sinon bas. La santé la plus basse reçoit « À regarder en premier » (sauf si
+toutes sont au palier haut) et c'est d'elle que parle le message du bas de page.
 
-1. Crée une **nouvelle** Google Sheet dédiée à Hijabi Fit (sheets.new) — ne
-   réutilise pas celle de Rijal Fit, pour ne pas mélanger les leads.
-2. Menu **Extensions → Apps Script**.
-3. Supprime le code par défaut et colle le contenu de
-   [`google-apps-script/Code.gs`](google-apps-script/Code.gs).
-4. **Déployer → Nouveau déploiement** → type **Application web** — Exécuter
-   en tant que **Moi**, Qui a accès : **Tout le monde**.
-5. Autorise l'accès (c'est ton propre script).
-6. Copie l'URL donnée à la fin (`https://script.google.com/macros/s/.../exec`).
+## Les 3 zones (score total sur 18)
 
-Ce script envoie aussi le Bilan Sens par email à chaque prospect (`MailApp`,
-depuis ton compte Gmail, sans service tiers). Même quota Gmail que pour
-Rijal Fit (~100 emails/jour), partagé entre les deux sites si c'est le même
-compte Google.
+| Points | Nom | Couleur |
+|---|---|---|
+| 0-6 | Réalignement stable | vert |
+| 7-12 | Le cycle yoyo | rose |
+| 13-18 | Le moment de se reprendre | rouge |
 
-### 2. Créer un nouveau projet GitHub + Vercel
+## Différences avec Rijal Fit
 
-Ce dossier n'est **pas encore** un dépôt git ni un projet Vercel — c'est une
-copie locale. Étapes :
-1. Crée un nouveau dépôt GitHub (vide).
-2. Depuis ce dossier : `git init`, `git remote add origin <url>`,
-   `git add -A`, `git commit`, `git push`.
-3. Sur vercel.com → **Add New → Project** → importe ce dépôt GitHub.
-4. Dans **Settings → Environment Variables** du nouveau projet Vercel,
-   ajoute `GOOGLE_SHEETS_WEBHOOK_URL` = l'URL copiée à l'étape 1.
-5. Une fois déployé, mets à jour `og:url`/`og:image`/`twitter:image` dans
-   `index.html` avec le vrai domaine Vercel obtenu (un `hijabi-fit.vercel.app`
-   est supposé dans le code actuel, à corriger si Vercel attribue autre chose).
+- Palette noir / blanc / rose `#C2185B` (variables CSS historiques
+  `--kaki`/`--or`/`--beige` conservées, seules leurs valeurs ont changé).
+- Aucune photo : les réponses sont en texte, les écrans pleine largeur ont un
+  dégradé rose. Textes au féminin (« sœurs » au lieu de « frères »).
+- Signature « L'équipe Hijabi Fit » (à préciser si tu veux une personne).
 
-### 3. Tester
+## À compléter dans `script.js` (en haut du fichier)
 
-Même checklist que Rijal Fit : quiz complet, bio → analyse sans photo →
-10 questions → porte d'entrée → résultat complet (silhouette, jauges,
-analyse complète, projection), ligne dans la Sheet, email reçu, lien
-Calendly.
+- `VIDEOS` : un lien YouTube/Vimeo par profil (`stable`, `yoyo`, `decrochage`).
+  Vide : le message écrit s'affiche à la place.
+- `WHATSAPP_URL` : un lien WhatsApp. Vide : le bouton est masqué.
+
+## Google Sheet
+
+`google-apps-script/Code.gs` écrit dans l'onglet **« Bilans »** (créé
+automatiquement) : `Date · Prénom · Email · Âge · Statut · Score · Zone ·
+Physique % · Mentale % · Sociale % · Spirituelle % · Santé à regarder en
+premier · Problème n°1 · Date résultat`, une ligne par personne qui a terminé,
+et envoie l'email de résultat complet (compte Gmail qui a déployé le script).
+
+**Si tu modifies `Code.gs` :** Déployer → Gérer les déploiements → crayon →
+Nouvelle version → Déployer (l'URL ne change pas).
 
 ## Structure
 
-Identique à `bilan-sens-rijalfit` — voir son propre README pour le détail
-du moteur (`QUESTIONS`/`ZONES` dans `script.js`, `api/log-lead.js`,
-`google-apps-script/Code.gs`).
+```
+index.html                   → intro, questions, prénom/email, résultat
+style.css                    → design Hijabi Fit (noir / blanc / rose)
+script.js                    → questions, 4 santés, zones, enregistrement du lead
+api/log-lead.js              → fonction serverless : nettoie et transmet au script Google
+google-apps-script/Code.gs   → à coller dans la Google Sheet Hijabi Fit
+bilan-morpho-anatomique.html → outil autonome (11 questions → exercices à proscrire)
+```
+
+## Déploiement
+
+GitHub `muslimserinityforme-maker/hijabi-fit` (branche `main`) → Vercel, adresse
+`hijabi-fit.vercel.app`. Variable Vercel : `GOOGLE_SHEETS_WEBHOOK_URL` = l'URL de
+déploiement du script Google.
