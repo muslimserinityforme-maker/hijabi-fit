@@ -343,11 +343,11 @@ function sendBilanEmail(data) {
   if (!data.email) return;
 
   var prenom = data.prenom || '';
-  var subject = 'Ton Bilan Sens — Hijabi Fit';
+  var subject = 'Ton Bilan Santé — Hijabi Fit';
 
   var body =
     (prenom ? 'Salam ' + prenom + ',\n\n' : 'Salam,\n\n') +
-    'Voici le récapitulatif de ton Bilan Sens :\n\n' +
+    'Voici le récapitulatif de ton Bilan Santé :\n\n' +
     '— Ta zone : ' + (data.zone || '') + ' (' + (data.score || '') + '/18)\n' +
     '— IMC estimé : ' + (data.imc || '') + '\n' +
     '— Morphotype : ' + (data.morphotype || '') + '\n' +
